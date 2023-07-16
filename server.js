@@ -1,12 +1,13 @@
 const express = require("express");
 const cors = require("cors");
+const dotenv = require("dotenv");
 
 const app = express();
 
 var corsOptions = {
   origin: "http://localhost:3001"
 };
-
+dotenv.config();
 app.use(cors(corsOptions));
 
 // parse requests of content-type - application/json
