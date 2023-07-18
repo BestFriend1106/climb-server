@@ -3,7 +3,9 @@ module.exports = mongoose => {
     {
       walletAddress: String,
       published: Boolean,
-      winStatus: Number
+      winStatus: Number,
+      date:String,
+      remainTimes:Number
     },
     { timestamps: true }
   );

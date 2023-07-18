@@ -5,7 +5,8 @@ const dotenv = require("dotenv");
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:3001"
+  origin: "*"
+  
 };
 dotenv.config();
 app.use(cors(corsOptions));
@@ -29,6 +30,8 @@ db.mongoose
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
+
+
 
 // simple route
 app.get("/", (req, res) => {

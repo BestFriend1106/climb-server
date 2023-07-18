@@ -8,33 +8,48 @@ function getRandom(){
 }
 
 // Create and Save a new spot
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   // Validate request
   if (!req.body) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
   const winStatus = getRandom();
-
-  // Create a Spot
-  const spot = new Spot({
-    walletAddress: req.body.walletAddress,
-    winStatus: winStatus,
-    published: req.body.published ? req.body.published : false
-  });
-  console.log("spot------------>", spot)
-  // Save Spot in the database
-  spot
-    .save(spot)
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Spots."
-      });
+  let date_ob = new Date().toISOString().split('T')[0];
+  // const date = date_ob.split("T");
+  const equSpots = await Spot.find(
+    {
+      walletAddress: req.body.data.walletAddress,
+      date: date_ob
+    }
+  )
+  if (equSpots.length !== 4){
+    const remainChance = 4-equSpots.length;
+    // Create a Spot
+    const spot = new Spot({
+      // walletAddress: req.body.data.walletAddress,
+      walletAddress:req.body.data.walletAddress,
+      winStatus: winStatus,
+      date: date_ob,
+      published: req.body.published ? req.body.published : false,
+      remainTimes: remainChance
     });
+    // Save Spot in the database
+    spot
+      .save(spot)
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the Spots."
+        });
+      });
+  }
+  else if (equSpots.length === 4){
+    res.send("There are no more chances today")
+  }
 };
 
 // Retrieve all Spots from the database.
@@ -54,6 +69,20 @@ exports.findAll = (req, res) => {
     });
 };
 
+exports.remainTimes = async(req, res) => {
+  let date_ob = new Date().toISOString().split('T')[0];
+  // const date = date_ob.split("T");
+  const equSpots = await Spot.find(
+    {
+      walletAddress: req.body.data.walletAddress,
+      date: date_ob
+    }
+  )
+  const response = {
+    remainTimes : equSpots.length
+  }
+  res.send(response)
+};
 // Find a single Spot with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
