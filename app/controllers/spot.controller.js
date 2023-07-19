@@ -82,7 +82,6 @@ exports.remainTimes = async(req, res) => {
   const winValue = await Spot.find(
     {
       walletAddress: req.body.data.walletAddress,
-      date: date_ob,
       winStatus:1
     }
   )
