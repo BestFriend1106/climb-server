@@ -14,13 +14,14 @@ exports.create = async (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-  const winStatus = getRandom();
+  
   let date_ob = new Date().toISOString().split('T')[0];
   // const date = date_ob.split("T");
   const equSpots = await Spot.find(
     {
       walletAddress: req.body.data.walletAddress,
-      date: date_ob
+      date: date_ob,
+      winStatus:req.body.winStatus
     }
   )
   if (equSpots.length !== 4){
@@ -29,7 +30,7 @@ exports.create = async (req, res) => {
     const spot = new Spot({
       // walletAddress: req.body.data.walletAddress,
       walletAddress:req.body.data.walletAddress,
-      winStatus: winStatus,
+      winStatus: req.body.data.winStatus,
       date: date_ob,
       published: req.body.published ? req.body.published : false,
       remainTimes: remainChance
@@ -78,8 +79,19 @@ exports.remainTimes = async(req, res) => {
       date: date_ob
     }
   )
+  const winValue = await Spot.find(
+    {
+      walletAddress: req.body.data.walletAddress,
+      date: date_ob,
+      winStatus:1
+    }
+  )
+  let winPossible
+  if (winValue.length === 0) winPossible = "possible"
+  else winPossible = "impossible"
   const response = {
-    remainTimes : equSpots.length
+    remainTimes : equSpots.length,
+    winPossible: winPossible
   }
   res.send(response)
 };
