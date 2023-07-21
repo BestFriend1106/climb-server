@@ -6,8 +6,11 @@ module.exports = app => {
   // Create a new Spot
   router.post("/", spots.create);
 
-  // Retrieve all Spots
+  // Retrieve remain Spots times
   router.post("/remainTimes", spots.remainTimes);
+
+  // Retrieve all Spots 
+  router.get("/all", spots.allData);
 
   // Retrieve all published Spots
   router.get("/published", spots.findAllPublished);
