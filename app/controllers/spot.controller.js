@@ -124,8 +124,7 @@ exports.update = (req, res) => {
 
 // Delete a Spot with the specified id in the request
 exports.delete = (req, res) => {
-  const id = req.params.id;
-
+  const id = req.body.id
   Spot.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
       if (!data) {

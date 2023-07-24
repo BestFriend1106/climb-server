@@ -9,6 +9,9 @@ module.exports = app => {
   // Retrieve remain Spots times
   router.post("/remainTimes", spots.remainTimes);
 
+  // Delete spot
+  router.post("/deleteById", spots.delete);
+
   // Retrieve all Spots 
   router.get("/all", spots.allData);
 
@@ -21,8 +24,6 @@ module.exports = app => {
   // Update a Spot with id
   router.put("/:id", spots.update);
 
-  // Delete a Spot with id
-  router.delete("/:id", spots.delete);
 
   // Create a new Spot
   router.delete("/", spots.deleteAll);
