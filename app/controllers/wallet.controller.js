@@ -2,6 +2,7 @@ const db = require("../models");
 const csv = require("csv-parser");
 const fs = require("fs");
 const Wallet = db.wallets;
+const RequestUser = db.requestUsers;
 
 // Create and Save a new user
 exports.create = async (req, res) => {
@@ -67,4 +68,61 @@ exports.getAvailable = async (req, res) => {
     }
     else res.send("success")
   })
+};
+
+exports.receiveRequest = async (req, res) => {
+  const requestUser = new RequestUser({
+    walletAddress: req.body.data.walletAddress,
+    nickName: req.body.data.nickName
+  });
+  // Save Spot in the database
+  requestUser
+    .save(requestUser)
+    .then((data) => {
+      res.send("success");
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Spots.",
+      });
+    });
+};
+
+exports.requestList = async (req, res) => {
+  RequestUser.find({})
+  .then((data) => {
+    res.send(data)
+  })
+  .catch((err) => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while creating the Spots.",
+    });
+  });
+};
+
+exports.agreeUser = async (req, res) => {
+  RequestUser.findByIdAndRemove(req.body.id, { useFindAndModify: false })
+  .then((data) => {
+    if (!data) {
+      res.status(404).send({
+        message: `Cannot delete Spot with id=${id}. Maybe Spot was not found!`,
+      });
+    } else {
+      const wallet = new Wallet({
+        walletAddress: req.body.walletAddress
+      });
+      wallet.save(wallet);
+      res.send({
+        message: "Spot was deleted successfully!",
+      });
+    }
+  })
+  .catch((err) => {
+    res.status(500).send({
+      message: "Could not delete Spot with id=" + id,
+    });
+  });
+  
 };
