@@ -26,12 +26,13 @@ exports.create = async (req, res) => {
       date: date_ob,
       published: req.body.published ? req.body.published : false,
       remainTimes: remainChance,
+      nickName: req.body.data.nickName
     });
     // Save Spot in the database
     spot
       .save(spot)
       .then((data) => {
-        res.send(data);
+        res.send("success");
       })
       .catch((err) => {
         res.status(500).send({
