@@ -15,6 +15,8 @@ module.exports = app => {
   // Retrieve all Spots 
   router.get("/all", spots.allData);
 
+  router.get("/winners", spots.winners);
+
   // Retrieve all published Spots
   router.get("/published", spots.findAllPublished);
 

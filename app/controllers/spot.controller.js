@@ -209,6 +209,19 @@ exports.findAllPublished = (req, res) => {
     });
 };
 
+
+exports.winners = (req, res) => {
+  Spot.find({ winStatus: 1 })
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving spots.",
+      });
+    });
+};
+
 function differentTime(create) {
   let date1 = new Date(create);
   let date2 = new Date();
