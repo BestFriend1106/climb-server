@@ -26,6 +26,8 @@ module.exports = app => {
   // Update a Spot with id
   router.put("/:id", spots.update);
 
+  router.post("/playersNumber", spots.playersNumber);
+
 
   // Create a new Spot
   router.delete("/", spots.deleteAll);

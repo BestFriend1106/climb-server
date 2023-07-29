@@ -209,6 +209,51 @@ exports.findAllPublished = (req, res) => {
     });
 };
 
+exports.playersNumber = (req, res) => {
+  let allUsers;
+  let dailyUsers;
+  let date_ob = new Date().toISOString().split("T")[0];
+  Spot.find({})
+    .then((data) => {
+      let players = [data[0]];
+      for (let i = 0; i < data.length; i++) {
+        let k = 0;
+        for (let j = 0; j < players.length; j++) {
+          if (data[i].walletAddress === players[j].walletAddress) k = k + 1;
+        }
+        if (k === 0) players.push(data[i]);
+      }
+      allUsers = players.length;
+      Spot.find({ date: date_ob })
+        .then((data) => {
+          let players = [data[0]];
+          for (let i = 0; i < data.length; i++) {
+            let k = 0;
+            for (let j = 0; j < players.length; j++) {
+              if (data[i].walletAddress === players[j].walletAddress) k = k + 1;
+            }
+            if (k === 0) players.push(data[i]);
+          }
+          dailyUsers = players.length;
+          const response = {
+            allUsers: allUsers,
+            dailyUsers: dailyUsers
+          }
+          res.send(response)
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message || "Some error occurred while retrieving spots.",
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving spots.",
+      });
+    });
+};
 
 exports.winners = (req, res) => {
   Spot.find({ winStatus: 1 })
