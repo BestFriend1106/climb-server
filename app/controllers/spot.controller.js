@@ -21,7 +21,7 @@ exports.create = async (req, res) => {
       date: date_ob,
       published: req.body.published ? req.body.published : false,
       remainTimes: req.body.data.remainTimes,
-      nickName: req.body.data.nickName
+      nickName: req.body.data.nickName,
     });
     spot
       .save(spot)
@@ -59,8 +59,12 @@ exports.findAll = (req, res) => {
 
 exports.remainTimes = async (req, res) => {
   // const date = date_ob.split("T");
-  const lastRecord = await Spot.find({walletAddress:req.body.data.walletAddress}).sort({$natural: -1}).limit(1)
-  const remainSecond = differentTime(lastRecord[0].createdAt);
+  const lastRecord = await Spot.find({
+    walletAddress: req.body.data.walletAddress,
+  })
+    .sort({ $natural: -1 })
+    .limit(1);
+
   const winValue = await Spot.find({
     walletAddress: req.body.data.walletAddress,
     winStatus: 1,
@@ -68,30 +72,38 @@ exports.remainTimes = async (req, res) => {
   let winPossible;
   if (winValue.length === 0) winPossible = "possible";
   else winPossible = "impossible";
-  if (lastRecord[0].remainTimes !== 0){
+
+  if (lastRecord.length === 0) {
     const response = {
-      remainTimes: lastRecord[0].remainTimes,
+      remainTimes: 4,
       winPossible: winPossible,
-      createdAt: lastRecord[0].createdAt
     };
     res.send(response);
-  }
-  else if (lastRecord[0].remainTimes === 0){
-    if (remainSecond >= 14400){
+  } else if (lastRecord.length >= 0) {
+    if (lastRecord[0].remainTimes !== 0) {
       const response = {
-        remainTimes: 4,
+        remainTimes: lastRecord[0].remainTimes,
         winPossible: winPossible,
-        createdAt: lastRecord[0].createdAt
+        createdAt: lastRecord[0].createdAt,
       };
       res.send(response);
-    }
-    else if(remainSecond < 14400){
-      const response = {
-        remainTimes: 0,
-        winPossible: winPossible,
-        createdAt: lastRecord[0].createdAt
-      };
-      res.send(response);
+    } else if (lastRecord[0].remainTimes === 0) {
+      const remainSecond = differentTime(lastRecord[0].createdAt);
+      if (remainSecond >= 14400) {
+        const response = {
+          remainTimes: 4,
+          winPossible: winPossible,
+          createdAt: lastRecord[0].createdAt,
+        };
+        res.send(response);
+      } else if (remainSecond < 14400) {
+        const response = {
+          remainTimes: 0,
+          winPossible: winPossible,
+          createdAt: lastRecord[0].createdAt,
+        };
+        res.send(response);
+      }
     }
   }
 };
@@ -137,7 +149,7 @@ exports.update = (req, res) => {
 
 // Delete a Spot with the specified id in the request
 exports.delete = (req, res) => {
-  const id = req.body.id
+  const id = req.body.id;
   Spot.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
@@ -197,7 +209,7 @@ exports.findAllPublished = (req, res) => {
     });
 };
 
-function differentTime (create) {
+function differentTime(create) {
   let date1 = new Date(create);
   let date2 = new Date();
   var dif = Math.round(date2 - date1) / 1000;
