@@ -3,32 +3,26 @@ const Spot = db.spots;
 
 // Create and Save a new spot
 exports.create = async (req, res) => {
-  // Validate request
   if (!req.body) {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
 
   let date_ob = new Date().toISOString().split("T")[0];
-  // const date = date_ob.split("T");
   const equSpots = await Spot.find({
     walletAddress: req.body.data.walletAddress,
     date: date_ob,
     winStatus: req.body.winStatus,
   });
   if (equSpots.length !== 4) {
-    const remainChance = 4 - equSpots.length;
-    // Create a Spot
     const spot = new Spot({
-      // walletAddress: req.body.data.walletAddress,
       walletAddress: req.body.data.walletAddress,
       winStatus: req.body.data.winStatus,
       date: date_ob,
       published: req.body.published ? req.body.published : false,
-      remainTimes: remainChance,
+      remainTimes: req.body.data.remainTimes,
       nickName: req.body.data.nickName
     });
-    // Save Spot in the database
     spot
       .save(spot)
       .then((data) => {
@@ -64,12 +58,9 @@ exports.findAll = (req, res) => {
 };
 
 exports.remainTimes = async (req, res) => {
-  let date_ob = new Date().toISOString().split("T")[0];
   // const date = date_ob.split("T");
-  const equSpots = await Spot.find({
-    walletAddress: req.body.data.walletAddress,
-    date: date_ob,
-  });
+  const lastRecord = await Spot.find({walletAddress:req.body.data.walletAddress}).sort({$natural: -1}).limit(1)
+  const remainSecond = differentTime(lastRecord[0].createdAt);
   const winValue = await Spot.find({
     walletAddress: req.body.data.walletAddress,
     winStatus: 1,
@@ -77,11 +68,32 @@ exports.remainTimes = async (req, res) => {
   let winPossible;
   if (winValue.length === 0) winPossible = "possible";
   else winPossible = "impossible";
-  const response = {
-    remainTimes: equSpots.length,
-    winPossible: winPossible,
-  };
-  res.send(response);
+  if (lastRecord[0].remainTimes !== 0){
+    const response = {
+      remainTimes: lastRecord[0].remainTimes,
+      winPossible: winPossible,
+      createdAt: lastRecord[0].createdAt
+    };
+    res.send(response);
+  }
+  else if (lastRecord[0].remainTimes === 0){
+    if (remainSecond >= 14400){
+      const response = {
+        remainTimes: 4,
+        winPossible: winPossible,
+        createdAt: lastRecord[0].createdAt
+      };
+      res.send(response);
+    }
+    else if(remainSecond < 14400){
+      const response = {
+        remainTimes: 0,
+        winPossible: winPossible,
+        createdAt: lastRecord[0].createdAt
+      };
+      res.send(response);
+    }
+  }
 };
 // Find a single Spot with an id
 exports.findOne = (req, res) => {
@@ -184,3 +196,10 @@ exports.findAllPublished = (req, res) => {
       });
     });
 };
+
+function differentTime (create) {
+  let date1 = new Date(create);
+  let date2 = new Date();
+  var dif = Math.round(date2 - date1) / 1000;
+  return dif;
+}
